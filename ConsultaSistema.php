@@ -1,55 +1,63 @@
 <?php
 
-// require_once("conexao/index.php");
+require_once("ConsultaPadrao.php");
+class ConsultaSistema extends ConsultaPadrao {
 
-$consultaSistema = '<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Sistema</title>
-</head>
-<body>
-    <table border="1">
-        <thead>
-            <th>Código</th>
-            <th>Nome</th>
-            <th>Situação</th>
-        </thead>
-        <tbody>';
-
-
-// Pegar os dados do banco de dados 
-require_once("conexao/Utils.php");
-
-$sql = " select * from sistema where siscodigo >=1 order by siscodigo";
-$aListaSistema = getQuery()->selectAll($sql);
-
-// echo "<pre>" . print_r($aDados, true) ."</pre>"; return true;
-
-
-foreach($aListaSistema as $aSistema){
-    // INICIA A LINHA
-    $consultaSistema .= '<tr>';
-
-    // COLUNAS
-    $consultaSistema .= '<td>' . $aSistema["siscodigo"] . '</td>';
-    $consultaSistema .= '<td>' . $aSistema["sisnome"] . '</td>';
-    
-    if($aSistema["sisativo"] == 1){
-        $consultaSistema .= '<td>ATIVO</td>';
-    } else {
-        $consultaSistema .= '<td>INATIVO</td>';
+    protected function getTabela(){
+        return 'sistema';
     }
 
-    // FECHA A LINHA
-    $consultaSistema .= '</tr>';
+    protected function getColunaOrdenacao(){
+        return 'siscodigo';
+    }
+
+    protected function getColunas(){
+        // Colunas
+        return array(
+            "Código",
+            "Nome",
+            "Situação"
+        );
+    }
+
+    protected function getColunasBancoDados(){
+        // Colunas na mesma ordem dos titulos
+        return array(
+            "siscodigo",
+            "sisnome",
+            "sisativo"
+        );
+    }
+
+    // Usando lógica 
+    //protected function getDadosConsulta(){
+    //     $aDados = parent::getDadosConsulta();
+
+    //     $aDadosNew = array();
+    //     foreach($aDados as $key => $aDadosAtual){
+    //         $sisativo = $aDadosAtual["sisativo"];
+
+    //         if($sisativo == 1){
+    //             $aDadosAtual["sisativo"] = 'ATIVO';
+    //         } else {
+    //             $aDadosAtual["sisativo"] = 'INATIVO';
+    //         }
+
+    //         $aDadosNew[$key] = $aDadosAtual;
+    //     }
+
+    //     return $aDadosNew;
+    // }
+
+    //Usando SQL
+    protected function getSqlConsulta(){
+        $sqlConsulta = " select siscodigo,
+                                sisnome,
+                                case when sisativo = 1 then 'Ativo' else 'Inativo' end sisativo
+                          from " . $this->getTabela() . " order by " . $this->getColunaOrdenacao();
+        return $sqlConsulta;
+    }
+
 }
 
-$consultaSistema .= '            
-        </tbody>
-    </table>
-</body>
-</html>';
-
-echo $consultaSistema;
+new ConsultaSistema();
